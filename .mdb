@@ -1,0 +1,11 @@
+{
+  "projectName": "mdb5-free-vue",
+  "meta": {
+    "type": "frontend",
+    "starter": "mdb5-free-vue"
+  },
+  "backend": {
+    "platform": "node12"
+  },
+  "hash": "186c5bcd"
+}
