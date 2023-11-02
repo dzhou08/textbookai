@@ -25,13 +25,34 @@
         <div v-if="termList.length === 0">
           Nothing to display. Add a few terms.
         </div>
-        <MDBAccordion v-else v-model="activeItem" borderless flush>
+        <MDBAccordion v-else v-model="activeItem">
           <MDBAccordionItem v-for="term in termList" 
             icon="fas fa-highlighter fa-sm me-2 opacity-70"
             :headerTitle=term.title
             :collapseId=term.title
           >
+          <div v-if=term.pinTerm class="bg-warning">
             {{ term.description }}
+          </div>
+          <div v-else>
+            {{ term.description }}
+          </div>
+            - From Chapter {{ term.chapterNumber }}
+          <br/>
+            <MDBIcon v-if = !term.pinTerm
+              class="text-danger ms-3 me-3"
+              title="Pin"
+              icon="eye"
+              style="cursor: pointer"
+              @click="() => updateTerm(term._id, term.chapterNumber, term.title, term.description, true)"
+            />
+            <MDBIcon v-else
+              class="text-danger ms-3 me-3"
+              title="Pin"
+              icon="eye-slash"
+              style="cursor: pointer"
+              @click="() => updateTerm(term._id, term.chapterNumber, term.title, term.description, false)"
+            />
             <MDBIcon
               class="text-primary me-3"
               title="edit"
@@ -46,9 +67,6 @@
               style="cursor: pointer"
               @click="() => deleteTerm(term._id)"
             />
-            
-            <br/>
-            - From Chapter {{ term.chapterNumber }}
           </MDBAccordionItem>
         </MDBAccordion>
       </MDBCol>
@@ -86,11 +104,14 @@
           />
         </div>
         <div class="my-4">
-          <MDBInput
+          <MDBTextarea
             label="description"
             type="text"
             v-model="newDescription"
           />
+        </div>
+        <div class="my-4">
+          <MDBCheckbox label="Pin Term for later review?" v-model="newPinTerm" />
         </div>
       </form>
     </MDBModalBody>
@@ -137,6 +158,7 @@
     mdbRipple,
     MDBAccordion,
     MDBAccordionItem,
+    MDBCheckbox
   } from "mdb-vue-ui-kit";
   import TextClamp from 'vue3-text-clamp';
   import axios from "axios";
@@ -153,6 +175,7 @@
     chapterNumber: string;
     title: string;
     description: string;
+    pinTerm: false;
   }
 
   const termList = ref<SingleTerm[]>([]);
@@ -160,6 +183,7 @@
   const newChapterNumber = ref("");
   const newTitle = ref("");
   const newDescription = ref("");
+  const newPinTerm = ref(false);
   const isEdited = ref({ edited: false, value: -1 });
   const API_URL = ref("");
 
@@ -189,11 +213,13 @@
       isEdited.value.value, 
       newChapterNumber.value,
       newTitle.value, 
-      newDescription.value)
+      newDescription.value,
+      newPinTerm.value)
       : createTerm(
       newChapterNumber.value,
       newTitle.value, 
-      newDescription.value);
+      newDescription.value,
+      newPinTerm.value);
     resetInputs();
     termModal.value = false;
   };
@@ -202,6 +228,7 @@
     newChapterNumber.value = term.chapterNumber;
     newTitle.value = term.title;
     newDescription.value = term.description;
+    newPinTerm.value = term.pinTerm;
     isEdited.value = { edited: true, value: term._id };
     termModal.value = true;
   };
@@ -225,7 +252,8 @@
   const createTerm = (
     chapterNumber: string, 
     title: string,
-    description: string) => {
+    description: string,
+    pinTerm: boolean) => {
       const data = { chapterNumber, title, description};
     axios.post(`${API_URL.value}terms`, data).then(() => {
       getTermList();
@@ -238,11 +266,19 @@
     });
   };
 
+  const pinTerm = (id: number) => {
+    axios.post(`${API_URL.value}terms/${id}`).then(() => {
+      getTermList();
+    });
+  };
+
   const updateTerm = (id: number, 
     chapterNumber: string, 
     title: string,
-    description: string) => {
-    const data = { chapterNumber, title, description};
+    description: string,
+    pinTerm:boolean) => {
+    const data = { chapterNumber, title, description, pinTerm};
+    console.log(pinTerm);
     axios.put(`${API_URL.value}terms/${id}`, data).then(() => {
       getTermList();
     });

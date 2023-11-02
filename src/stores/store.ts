@@ -8,6 +8,6 @@ export const useStore = defineStore('main', {
     user_avatar: useLocalStorage('user_avatar', ''),
     loggedIn: useLocalStorage('loggedIn', false),
     current_nav: useLocalStorage('current_nav', ''),
-    current_section_id: useLocalStorage('current_section_id', 0)
+    current_section_id: useLocalStorage('current_section_id', '')
   })
 })

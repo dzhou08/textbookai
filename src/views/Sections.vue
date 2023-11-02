@@ -43,7 +43,7 @@
               <text-clamp :text=section.sectionSummary :max-lines='3' />
             </MDBCardText>
             <MDBBtn color="secondary" 
-            @click="toSection(section._id)" 
+            @click="toSection(section._id.toString())" 
             class="me-3">
               Go to Section
             </MDBBtn>
@@ -191,8 +191,8 @@
   
   const store = useStore();
 
-  const toSection = (sectionId:number) => {
-    store.current_section_id = sectionId
+  const toSection = (sectionId:string) => {
+    store.current_section_id = sectionId,
     router.push('section') 
   }
 
@@ -331,6 +331,7 @@
 
   onMounted(() => {
     API_URL.value = import.meta.env.VITE_API;
+    store.current_section_id='',
     getSectionList();
   });
   </script>
